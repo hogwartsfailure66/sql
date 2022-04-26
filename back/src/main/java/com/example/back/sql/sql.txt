@@ -1,0 +1,127 @@
+// 不支持select *
+SELECT temp.username, max(temp.price) as price
+                FROM (
+                  SELECT concat('user', user.name) as username,
+                         product.price
+                  FROM   user,
+                         product
+                  WHERE  user.id = product.uid
+                 ) as temp
+                GROUP BY temp.name;
+
+Insert into customers(cust_id,cust_name) select id as myid, name from custnew;
+
+insert into customers(name, p)
+SELECT temp.username, max(temp.price) as price
+                FROM (
+                  SELECT concat('user', user.name) as username,
+                         product.price
+                  FROM   user,
+                         product
+                  WHERE  user.id = product.uid
+                 ) as temp
+                GROUP BY temp.name;
+
+CREATE VIEW vsal
+AS
+  SELECT a.deptno                  'Department',
+         a.num_emp / b.total_count 'Employees',
+         a.sal_sum / b.total_sal   'Salary'
+  FROM   (SELECT deptno,
+                 Count()  num_emp,
+                 SUM(sal) sal_sum
+          FROM   scott.emp
+          WHERE  city = 'NYC'
+          GROUP  BY deptno) a,
+         (SELECT Count()  total_count,
+                 SUM(sal) total_sal
+          FROM   scott.emp
+          WHERE  city = 'NYC') b
+;
+
+select vend_id, prod_id, prod_price
+from products
+where prod_price <= 5
+UNION
+select vend_id, prod_id, prod_price
+from products
+where vend_id in (1001,1002);
+
+// union两个select的名字不一样的情况还没处理，无语
+select
+vend_id,prod_price
+from products
+union
+select
+id as vend_id,price as prod_price
+from lalala;
+
+SELECT article.aid,article.title,user.username FROM article LEFT JOIN user ON article.uid = user.uid
+
+SELECT
+  A.order_id,
+  A.wid,
+  A.work_name,
+  A.supply_price,
+  A.sell_price,
+  A.total_num,
+  A.sell_profit,
+  A.sell_percent,
+  A.goods_id,
+  A.goods_name,
+  A.classify,
+  B.gb_name
+FROM
+  (
+    SELECT
+      A.sub_order_id AS order_id,
+      A.photo_id AS wid,
+      A.photo_name AS work_name,
+      A.supply_price,
+      A.sell_price,
+      sum(A.num) AS total_num,
+      (
+        A.sell_price - A.supply_price
+      ) AS sell_profit,
+      (
+        A.sell_price - A.supply_price
+      ) / A.sell_price AS sell_percent,
+      A.goods_id,
+      A.goods_name,
+      B.goods_name AS classify
+    FROM
+      order_goods AS A
+    LEFT JOIN (
+      SELECT
+        A.goods_id,
+        A.parentid,
+        B.goods_name
+      FROM
+        test_qyg_goods.goods AS A
+      LEFT JOIN test_qyg_goods.goods AS B ON A.parentid = B.goods_id
+    ) AS B ON A.goods_id = B.goods_id
+    WHERE
+      A.createtime >= '2016-09-09 00:00:00'
+    AND A.createtime <= '2016-10-16 23:59:59'
+    AND FROM_UNIXTIME(
+      UNIX_TIMESTAMP(A.createtime),
+      '%Y-%m-%d'
+    ) != '2016-09-28'
+    AND FROM_UNIXTIME(
+      UNIX_TIMESTAMP(A.createtime),
+      '%Y-%m-%d'
+    ) != '2016-10-07'
+    GROUP BY
+      A.photo_id
+    ORDER BY
+      A.goods_id ASC
+  ) AS A
+LEFT JOIN (
+  SELECT
+    A.wid,
+    A.brand_id,
+    B.gb_name
+  FROM
+    test_qyg_user.buser_goods_list AS A
+  LEFT JOIN test_qyg_supplier.brands AS B ON A.brand_id = B.gbid
+) AS B ON A.wid = B.wid;
